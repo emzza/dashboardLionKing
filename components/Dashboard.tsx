@@ -31,7 +31,7 @@ const Dashboard: React.FC<DashboardProps> = ({ admin, onLogout, isOpen, setIsOpe
   };
 
   return (
-    <div className="flex h-screen bg-gray-900">
+    <div className="flex h-screen bg-gray-900 overflow-hidden">
       <Sidebar
         activeView={activeView}
         setActiveView={setActiveView}

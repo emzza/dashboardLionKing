@@ -165,17 +165,21 @@ const Cajeros: React.FC<CajerosProps> = ({ admin, isOpen, setIsOpen }) => {
   return (
     <div>
       {notification && <Notification message={notification.message} type={notification.type} onDismiss={() => setNotification(null)} />}
-      <div className="flex justify-between items-center mb-6">
-        <div>
-         <ButtonSidebar isOpen={isOpen} onToggle={() => setIsOpen(!isOpen)} />
+      <div className="flex-col md:flex-row justify-between items-center mb-6">
+        <div className="flex justify-start items-center mb-6">
+          <ButtonSidebar isOpen={isOpen} onToggle={() => setIsOpen(!isOpen)} />
+      
+          <h1 className="text-3xl ml-2 font-bold text-white">Cajeros</h1> 
         </div>
-        <h1 className="text-2xl font-bold text-white">Gestión de Cajeros</h1>
-        {admin.permisoAdmin && (
+        <div className="flex justify-between items-center">
+          <p>Total: {cajeros.length}</p>
+          {admin.permisoAdmin && (
            <button onClick={() => setCreateModalOpen(true)} className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-gray-900">
                 {ICONS.plus}
                 <span className="ml-2">Nuevo Cajero</span>
             </button>
-        )}
+          )}
+        </div>
       </div>
 
       <div className="mb-4 p-4 bg-gray-800/60 rounded-lg border border-gray-700 flex flex-col md:flex-row items-center gap-4">

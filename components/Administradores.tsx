@@ -88,54 +88,61 @@ const Administradores: React.FC<adminProps> = ({ admin, isOpen, setIsOpen }) => 
   }
 
   return (
-    <div>
-       {notification && <Notification message={notification.message} type={notification.type} onDismiss={() => setNotification(null)} />}
-      <div className="flex justify-between items-center mb-6">
-        <ButtonSidebar isOpen={isOpen} onToggle={() => setIsOpen(!isOpen)} />
-        <h1 className="text-3xl font-bold text-white">Gestión de Administradores</h1>
-        <button onClick={handleAddNew} className="inline-flex items-center justify-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-gray-900">
-            {ICONS.plus}
-            <span className="ml-2">Nuevo Administrador</span>
-        </button>
-      </div>
-      <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 overflow-hidden">
-        <table className="min-w-full divide-y divide-gray-700">
-          <thead className="bg-gray-800">
-            <tr>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Nombre</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Permiso Super Admin</th>
-              <th scope="col" className="relative px-6 py-3"><span className="sr-only">Editar</span></th>
-            </tr>
-          </thead>
-          <tbody className="bg-gray-800/50 divide-y divide-gray-700">
-            {admins.map((admin) => (
-              <tr key={admin.id} className="hover:bg-gray-700/50 transition-colors">
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{admin.nombre}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm">
-                    {admin.permisoAdmin ? 
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-500/20 text-green-300">Sí</span> : 
-                        <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-500/20 text-red-300">No</span>
-                    }
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                  <button onClick={() => handleEdit(admin)} className="text-emerald-400 hover:text-emerald-300">{ICONS.edit}</button>
-                </td>
+    <>
+      <div>
+        {notification && <Notification message={notification.message} type={notification.type} onDismiss={() => setNotification(null)} />}
+        <div className="flex-col md:flex-row justify-between items-center mb-6">
+          <div className="flex justify-start items-center mb-6">
+            <ButtonSidebar isOpen={isOpen} onToggle={() => setIsOpen(!isOpen)} />
+            <h1 className="text-3xl ml-2 font-bold text-white">Administradores</h1>
+          </div>
+          <div className="flex justify-between items-center">
+          <p>Total: {admins.length}</p>
+            <button onClick={handleAddNew} className=" inline-flex items-center justify-center px-2 py-2 ml-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-emerald-600 hover:bg-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-500 focus:ring-offset-gray-900">
+                {ICONS.plus}
+                <span className="ml-2">Agregar</span>
+            </button>
+          </div>
+        </div>
+        <div className="bg-gray-800 rounded-lg shadow-lg border border-gray-700 overflow-hidden">
+          <table className="min-w-full divide-y divide-gray-700">
+            <thead className="bg-gray-800">
+              <tr>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Nombre</th>
+                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Permiso Super Admin</th>
+                <th scope="col" className="relative px-6 py-3"><span className="sr-only">Editar</span></th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody className="bg-gray-800/50 divide-y divide-gray-700">
+              {admins.map((admin) => (
+                <tr key={admin.id} className="hover:bg-gray-700/50 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">{admin.nombre}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                      {admin.permisoAdmin ? 
+                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-500/20 text-green-300">Sí</span> : 
+                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-500/20 text-red-300">No</span>
+                      }
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <button onClick={() => handleEdit(admin)} className="text-emerald-400 hover:text-emerald-300">{ICONS.edit}</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-      {editingAdmin && (
-        <EditAdminModal
-          admin={editingAdmin}
-          isNew={isNew}
-          onClose={() => setEditingAdmin(null)}
-          onSave={handleSave}
-          isSaving={saving}
-        />
-      )}
-    </div>
+        {editingAdmin && (
+          <EditAdminModal
+            admin={editingAdmin}
+            isNew={isNew}
+            onClose={() => setEditingAdmin(null)}
+            onSave={handleSave}
+            isSaving={saving}
+          />
+        )}
+      </div>
+    </>
   );
 };
 

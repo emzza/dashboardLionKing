@@ -73,10 +73,12 @@ const Macros: React.FC<macrosProps> = ({ admin, isOpen, setIsOpen }) => {
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div>
       {notification && <Notification message={notification.message} type={notification.type} onDismiss={() => setNotification(null)} />}
-      <ButtonSidebar isOpen={isOpen} onToggle={() => setIsOpen(!isOpen)} />
-      <h1 className="text-3xl font-bold text-white mb-6">Configuración de Macros</h1>
+      <div className="flex justify-start items-center mb-6"> 
+        <ButtonSidebar isOpen={isOpen} onToggle={() => setIsOpen(!isOpen)} />
+        <h1 className="text-2xl ml-2 font-bold text-white">Macros</h1>
+      </div>
       <div className="bg-gray-800 p-8 rounded-lg shadow-lg border border-gray-700">
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
