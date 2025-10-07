@@ -44,13 +44,14 @@ const Sidebar: React.FC<SidebarProps> = ({
     <>
       {/* --- Sidebar principal --- */}
       <div
-        className={`
-          fixed top-0 left-0 h-full w-64 bg-gray-800/90 backdrop-blur-md border-r border-gray-700
-          flex flex-col z-40 transform transition-transform duration-300 ease-in-out
-          ${isOpen ? 'translate-x-0' : '-translate-x-full'}
-          md:translate-x-0
-        `}
-      >
+          className={`
+            flex flex-col bg-gray-800/90 backdrop-blur-md border-r border-gray-700 z-40
+            transform transition-transform duration-300 ease-in-out
+            ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+            fixed top-0 left-0 h-full w-64
+            md:static md:translate-x-0 md:flex-shrink-0
+          `}
+        >
         <div className="px-6 py-5 border-b border-gray-700">
           <h2 className="text-xl font-semibold text-white">Panel de Control</h2>
           <p className="text-sm text-gray-400 mt-1">Bienvenido, {adminName}</p>
