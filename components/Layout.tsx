@@ -6,8 +6,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <div className="flex min-h-screen bg-gray-900 text-white">
-      <Sidebar isOpen={isOpen} setIsOpen={setIsOpen} />
-      <main className="flex-1 p-6 overflow-y-auto">
+      <main className="flex-1 overflow-y-auto">
         {React.cloneElement(children as React.ReactElement, {
           isOpen,
           setIsOpen,
