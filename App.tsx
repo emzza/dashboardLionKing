@@ -4,6 +4,7 @@ import { Administrador } from './types';
 import LoginComponent from './components/Login';
 import Dashboard from './components/Dashboard';
 import { supabase } from './services/supabase';
+import Layout from './components/Layout';
 
 const App: React.FC = () => {
   const [loggedInAdmin, setLoggedInAdmin] = useState<Administrador | null>(null);
@@ -39,7 +40,9 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-900 text-gray-200">
       {loggedInAdmin ? (
-        <Dashboard admin={loggedInAdmin} onLogout={handleLogout} /> 
+        <Layout>
+          <Dashboard admin={loggedInAdmin} onLogout={handleLogout} />
+        </Layout>
       ) : (
         <LoginComponent onLogin={handleLogin} />
       )}
