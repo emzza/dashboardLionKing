@@ -106,11 +106,10 @@ const Cajeros: React.FC<CajerosProps> = ({ admin, isOpen, setIsOpen }) => {
   const filteredCajeros = useMemo(() => {
     return cajeros.filter(cajero => {
       const nombreMatch = cajero.nombre.toLowerCase().includes(filters.nombre.toLowerCase());
-      const telefonoMatch = cajero.numerotelefono.toLowerCase().includes(filters.telefono.toLowerCase());
       const estadoMatch = filters.estado === 'todos' ||
                             (filters.estado === 'enlinea' && cajero.estadolinea) ||
                             (filters.estado === 'fueradelinea' && !cajero.estadolinea);
-      return nombreMatch && telefonoMatch && estadoMatch;
+      return nombreMatch && estadoMatch;
     }).sort((a, b) => a.nombre.localeCompare(b.nombre)); // Keep a consistent sort order
   }, [cajeros, filters]);
 
@@ -191,14 +190,6 @@ const Cajeros: React.FC<CajerosProps> = ({ admin, isOpen, setIsOpen }) => {
             onChange={handleFilterChange}
             className="w-full md:w-auto bg-gray-700 border border-gray-600 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 flex-grow"
         />
-        <input
-            type="text"
-            name="telefono"
-            placeholder="Buscar por teléfono..."
-            value={filters.telefono}
-            onChange={handleFilterChange}
-            className="w-full md:w-auto bg-gray-700 border border-gray-600 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 flex-grow"
-        />
         <select
             name="estado"
             value={filters.estado}
@@ -216,8 +207,7 @@ const Cajeros: React.FC<CajerosProps> = ({ admin, isOpen, setIsOpen }) => {
           <thead className="bg-gray-800">
             <tr>
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Nombre</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Estado</th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Teléfono</th>
+              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Estado</th>              
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Conteo / Max</th>
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Conteo Día</th>
               <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Inversión</th>
@@ -234,7 +224,6 @@ const Cajeros: React.FC<CajerosProps> = ({ admin, isOpen, setIsOpen }) => {
                         {cajero.estadolinea ? 'En Línea' : 'Fuera de Línea'}
                     </span>
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{cajero.numerotelefono}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{cajero.conteo} / {cajero.maxconteo}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{cajero.conteoDia}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
@@ -336,11 +325,6 @@ const EditCajeroModal: React.FC<EditCajeroModalProps> = ({ cajero, onClose, onSa
                 <input type="text" name="nombre" id="nombre" value={formData.nombre} onChange={handleFormChange}
                     className="w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"/>
             </div>
-             <div>
-                <label htmlFor="numerotelefono" className="block text-sm font-medium mb-1">Número Teléfono</label>
-                <input type="text" name="numerotelefono" id="numerotelefono" value={formData.numerotelefono} onChange={handleFormChange}
-                    className="w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"/>
-            </div>
             <div>
                 <label htmlFor="idgrupo" className="block text-sm font-medium mb-1">ID Grupo</label>
                 <input type="text" name="idgrupo" id="idgrupo" value={formData.idgrupo} onChange={handleFormChange}
@@ -408,7 +392,6 @@ const CreateCajeroModal: React.FC<CreateCajeroModalProps> = ({ onClose, onSave, 
         }
         const newCajero: Omit<Cajero, 'id'> = {
             ...formData,
-            numerotelefono: '',
             estadolinea: false,
             conteo: 0,
             conteoDia: 0,
