@@ -1,15 +1,18 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Administrador, Cajero, Notification as NotificationType, NotificationType as NTEnum } from '../types';
-import { fetchAllAdmins, updateAdmin, createAdmin, fetchAllCajeros, fetchCajeroIdsForAdmin, updateAdminCajeroRelations } from '../services/supabase';
+import {
+  fetchAllAdmins,
+  updateAdmin,
+  fetchCajerosForAdmin,
+  getAdminIdByName,
+  getCajeroIdByName,
+} from '../services/api';
 import Spinner from './Spinner';
 import { ICONS } from '../constants';
 import Modal from './Modal';
 import Notification from './Notification';
 import { ButtonSidebar } from './ui/ButtonSideBar';
-
-
-
 
 interface adminProps {
   admin: Administrador;
@@ -63,14 +66,16 @@ const Administradores: React.FC<adminProps> = ({ admin, isOpen, setIsOpen }) => 
         const { id, ...updates } = adminToSave;
         savedAdminData = await updateAdmin(id, updates);
       } else {
-        const { id, ...newAdminData } = adminToSave as Administrador;
-        savedAdminData = await createAdmin(newAdminData);
+        // Función createAdmin no disponible en la API Flask
+        setNotification({ message: 'La creación de administradores no está disponible en la API Flask.', type: NTEnum.ERROR });
+        return;
       }
 
-      const savedAdminId = savedAdminData?.[0]?.id;
-      if(savedAdminId) {
-        await updateAdminCajeroRelations(savedAdminId, assignedCajeroIds);
-      }
+      // Función updateAdminCajeroRelations no disponible en la API Flask
+      // const savedAdminId = savedAdminData?.[0]?.id;
+      // if(savedAdminId) {
+      //   await updateAdminCajeroRelations(savedAdminId, assignedCajeroIds);
+      // }
 
       setNotification({ message: 'Administrador guardado con éxito.', type: NTEnum.SUCCESS });
       setEditingAdmin(null);
@@ -165,12 +170,10 @@ const EditAdminModal: React.FC<EditAdminModalProps> = ({ admin, isNew, onClose, 
         if (isNew || !('id' in admin)) return;
         setLoadingCajeros(true);
         try {
-            const [cajerosData, assignedIdsData] = await Promise.all([
-                fetchAllCajeros(),
-                fetchCajeroIdsForAdmin(admin.id)
-            ]);
+            // Usando fetchCajerosForAdmin en lugar de fetchAllCajeros y fetchCajeroIdsForAdmin
+            const cajerosData = await fetchCajerosForAdmin(admin.id);
             setAllCajeros(cajerosData);
-            setAssignedCajeroIds(new Set(assignedIdsData));
+            setAssignedCajeroIds(new Set(cajerosData.map(c => c.id)));
         } catch (e) {
             console.error("Error loading cajero relations", e);
         } finally {
@@ -181,7 +184,9 @@ const EditAdminModal: React.FC<EditAdminModalProps> = ({ admin, isNew, onClose, 
     if (!isNew) {
       loadRelations();
     } else {
-      fetchAllCajeros().then(setAllCajeros);
+      // fetchAllCajeros no disponible en la API Flask
+      // Para nuevos administradores, no mostramos cajeros disponibles
+      setAllCajeros([]);
     }
   }, [admin, isNew]);
 

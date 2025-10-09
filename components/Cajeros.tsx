@@ -1,14 +1,11 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Administrador, Cajero, Notification as NotificationType, NotificationType as NTEnum } from '../types';
-import { 
-    fetchCajerosForAdmin, 
-    updateCajero, 
-    createCajero, 
-    linkCajeroToAdmin,
-    subscribeToCajeroChanges,
-    subscribeToRelationChanges,
-    supabase
-} from '../services/supabase';
+import {
+  fetchCajerosForAdmin,
+  updateCajero,
+  startPolling,
+  stopPolling,
+} from '../services/api';
 import Spinner from './Spinner';
 import { ButtonSidebar } from './ui/ButtonSideBar';
 import { ICONS } from '../constants';
@@ -51,48 +48,29 @@ const Cajeros: React.FC<CajerosProps> = ({ admin, isOpen, setIsOpen }) => {
     }
   }, [admin.id, cajeros.length]);
 
-  // Effect 1: Handles initial data load and subscribes to relation changes.
-  // When a relation changes (e.g., a cajero is assigned), it triggers a full reload of the list.
+  // Effect 1: Handles initial data load and sets up polling for updates
   useEffect(() => {
     loadCajeros();
 
-    const relationsChannel = subscribeToRelationChanges(admin.id, () => {
-        // A relation change means our list of cajeros is outdated.
-        // Reloading will update the `cajeros` state, which in turn
-        // will trigger the next useEffect to re-subscribe to the correct items.
-        loadCajeros();
-    });
+    // Implementar polling para simular actualizaciones en tiempo real
+    const pollingInterval = startPolling(async () => {
+      try {
+        const data = await fetchCajerosForAdmin(admin.id);
+        setCajeros(data);
+      } catch (error) {
+        console.error('Error during polling:', error);
+      }
+    }, 30000); // Poll cada 30 segundos
 
     return () => {
-      supabase.removeChannel(relationsChannel);
+      stopPolling(pollingInterval);
     };
   }, [admin.id, loadCajeros]);
 
-  // Effect 2: Subscribes to individual cajero updates.
-  // This effect runs *only* when the list of cajero IDs actually changes.
-  useEffect(() => {
-    if (!cajeroIdString) {
-      return; // No cajeros to subscribe to.
-    }
-
-    const cajeroIds = cajeroIdString.split(',').map(id => parseInt(id, 10));
-
-    const cajerosChannel = subscribeToCajeroChanges(cajeroIds, (updatedCajero) => {
-      // This callback receives an update and patches the state without a full reload.
-      setCajeros(prevCajeros =>
-        prevCajeros.map(c =>
-          c.id === updatedCajero.id ? updatedCajero : c
-        )
-      );
-    });
-
-    // The cleanup for this effect is crucial. It removes the subscription
-    // for the OLD list of IDs before the effect re-runs to create the
-    // subscription for the NEW list of IDs.
-    return () => {
-      supabase.removeChannel(cajerosChannel);
-    };
-  }, [cajeroIdString]);
+  // Effect 2: No longer needed since we're using polling instead of individual subscriptions
+  // useEffect(() => {
+  //   // This effect is no longer needed with the REST API approach
+  // }, [cajeroIdString]);
   
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -138,17 +116,9 @@ const Cajeros: React.FC<CajerosProps> = ({ admin, isOpen, setIsOpen }) => {
     setSaving(true);
     setNotification(null);
     try {
-        const data = await createCajero(newCajeroData);
-        const newCajeroId = data?.[0]?.id;
-
-        if (newCajeroId) {
-            // Linking will trigger the relation subscription, which reloads the whole list.
-            await linkCajeroToAdmin(newCajeroId, admin.id);
-            setNotification({ message: 'Cajero creado y asignado con éxito.', type: NTEnum.SUCCESS });
-            setCreateModalOpen(false);
-        } else {
-            throw new Error("La creación del cajero falló o no devolvió un ID.");
-        }
+        // Las funciones createCajero y linkCajeroToAdmin no están disponibles en la API Flask
+        setNotification({ message: 'La creación de cajeros no está disponible en la API Flask.', type: NTEnum.ERROR });
+        setCreateModalOpen(false);
     } catch (error) {
         const err = error as Error;
         setNotification({ message: `Error al crear: ${err.message}`, type: NTEnum.ERROR });

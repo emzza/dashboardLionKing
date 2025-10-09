@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Administrador, Macro, Notification as NotificationType, NotificationType as NTEnum } from '../types';
-import { fetchMacro, updateMacro } from '../services/supabase';
+import { fetchMacro, updateMacro } from '../services/api';
 import Spinner from './Spinner';
 import Notification from './Notification';
 import { ButtonSidebar } from './ui/ButtonSideBar';

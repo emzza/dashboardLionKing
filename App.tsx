@@ -3,8 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { Administrador } from './types';
 import LoginComponent from './components/Login';
 import Dashboard from './components/Dashboard';
-import { supabase } from './services/supabase';
 import Layout from './components/Layout';
+import './App.css';
 
 const App: React.FC = () => {
   const [loggedInAdmin, setLoggedInAdmin] = useState<Administrador | null>(null);

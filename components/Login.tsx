@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Administrador } from '../types';
-import { signIn } from '../services/supabase';
+import { signIn } from '../services/api';
 import Spinner from './Spinner';
 
 interface LoginComponentProps {
