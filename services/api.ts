@@ -51,7 +51,7 @@ const apiRequest = async <T = any>(endpoint: string, options: RequestInit = {}):
 
 // --- AUTENTICACIÓN ---
 export const signIn = async (nombre: string, contrasena: string): Promise<Administrador | null> => {
-  const response = await apiRequest<Administrador>('/api/admin/login', {
+  const response = await apiRequest<Administrador>('/admin/login', {
     method: 'POST',
     body: JSON.stringify({ nombre, contrasena }),
   });
@@ -61,7 +61,7 @@ export const signIn = async (nombre: string, contrasena: string): Promise<Admini
 // --- MACROS ---
 export const fetchMacro = async (id: number): Promise<Macro | null> => {
   // La API devuelve CBUs globales (ID=1); se ignora el parámetro id
-  const response = await apiRequest<{ cbu90: string; cbu100: string }>('/api/macros/cbus', {
+  const response = await apiRequest<{ cbu90: string; cbu100: string }>('/macros/cbus', {
     method: 'GET',
   });
   return response.success && response.data ? {
@@ -72,7 +72,7 @@ export const fetchMacro = async (id: number): Promise<Macro | null> => {
 };
 
 export const updateMacro = async (id: number, updates: Partial<Macro>) => {
-  const response = await apiRequest('/api/macros/cbus', {
+  const response = await apiRequest('/macros/cbus', {
     method: 'PUT',
     body: JSON.stringify({
       cbu90: updates['cbu90%'],
@@ -87,14 +87,14 @@ export const updateMacro = async (id: number, updates: Partial<Macro>) => {
 
 // --- CAJEROS ---
 export const fetchCajerosForAdmin = async (adminId: number): Promise<Cajero[]> => {
-  const response = await apiRequest<Cajero[]>(`/api/admin/${adminId}/cajeros`, {
+  const response = await apiRequest<Cajero[]>(`/admin/${adminId}/cajeros`, {
     method: 'GET',
   });
   return response.success ? response.data || [] : [];
 };
 
 export const updateCajero = async (id: number, updates: Partial<Cajero>) => {
-  const response = await apiRequest(`/api/cajero/${id}`, {
+  const response = await apiRequest(`/cajero/${id}`, {
     method: 'PUT',
     body: JSON.stringify({
       ...updates,
@@ -108,14 +108,14 @@ export const updateCajero = async (id: number, updates: Partial<Cajero>) => {
 
 // --- ADMINISTRADORES ---
 export const fetchAllAdmins = async (): Promise<Administrador[]> => {
-  const response = await apiRequest<Administrador[]>('/api/admin/all', {
+  const response = await apiRequest<Administrador[]>('/admin/all', {
     method: 'GET',
   });
   return response.success ? response.data || [] : [];
 };
 
 export const updateAdmin = async (id: number, updates: Partial<Administrador>) => {
-  const response = await apiRequest(`/api/admin/${id}`, {
+  const response = await apiRequest(`/admin/${id}`, {
     method: 'PUT',
     body: JSON.stringify({
       ...updates,
@@ -129,14 +129,14 @@ export const updateAdmin = async (id: number, updates: Partial<Administrador>) =
 
 // --- FUNCIONES AUXILIARES PARA OBTENER IDs ---
 export const getAdminIdByName = async (nombre: string): Promise<number | null> => {
-  const response = await apiRequest<{ id: number }>(`/api/admin/name/${encodeURIComponent(nombre)}`, {
+  const response = await apiRequest<{ id: number }>(`/admin/name/${encodeURIComponent(nombre)}`, {
     method: 'GET',
   });
   return response.success && response.data ? response.data.id : null;
 };
 
 export const getCajeroIdByName = async (nombre: string): Promise<number | null> => {
-  const response = await apiRequest<{ id: number }>(`/api/cajero/name/${encodeURIComponent(nombre)}`, {
+  const response = await apiRequest<{ id: number }>(`/cajero/name/${encodeURIComponent(nombre)}`, {
     method: 'GET',
   });
   return response.success && response.data ? response.data.id : null;
