@@ -12,9 +12,10 @@ interface ApiResponse<T = any> {
 }
 
 // Función auxiliar para hacer peticiones HTTP
+// Normaliza respuestas: si el backend no envía { success, data }, se envuelve como success=true
 const apiRequest = async <T = any>(endpoint: string, options: RequestInit = {}): Promise<ApiResponse<T>> => {
   const url = `${API_BASE_URL}${endpoint}`;
-  
+
   const defaultOptions: RequestInit = {
     headers: {
       'Content-Type': 'application/json',
@@ -25,172 +26,120 @@ const apiRequest = async <T = any>(endpoint: string, options: RequestInit = {}):
 
   try {
     const response = await fetch(url, defaultOptions);
-    
+
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      // Intentamos leer el cuerpo para obtener mensaje de error si existe
+      let message = `HTTP error! status: ${response.status}`;
+      try {
+        const errJson = await response.json();
+        if (errJson?.message || errJson?.error) message = errJson.message || errJson.error;
+      } catch {}
+      return { success: false, message };
     }
-    
-    const data = await response.json();
-    return data;
-  } catch (error) {
+
+    const json = await response.json();
+    // Si ya cumple el contrato, retornamos tal cual; si no, envolvemos
+    if (typeof json === 'object' && json !== null && ('success' in json || 'data' in json || 'error' in json || 'message' in json)) {
+      return json as ApiResponse<T>;
+    }
+    return { success: true, data: json as T };
+  } catch (error: any) {
     console.error(`Error en petición a ${endpoint}:`, error);
-    throw error;
+    return { success: false, message: error?.message || 'Network/unknown error' };
   }
 };
 
 // --- AUTENTICACIÓN ---
 export const signIn = async (nombre: string, contrasena: string): Promise<Administrador | null> => {
-  try {
-    const response = await apiRequest<Administrador>('/iniciar_sesion_administrador', {
-      method: 'POST',
-      body: JSON.stringify({ nombre, contrasena }),
-    });
-    
-    return response.success ? response.data || null : null;
-  } catch (error) {
-    console.error('Error signing in:', error);
-    return null;
-  }
+  const response = await apiRequest<Administrador>('/api/admin/login', {
+    method: 'POST',
+    body: JSON.stringify({ nombre, contrasena }),
+  });
+  return response.success ? response.data || null : null;
 };
 
 // --- MACROS ---
 export const fetchMacro = async (id: number): Promise<Macro | null> => {
-  try {
-    // Como la API solo devuelve los CBUs de la tabla macros (ID = 1), ignoramos el parámetro id
-    const response = await apiRequest<{cbu90: string, cbu100: string}>('/obtener_cbus_macro', {
-      method: 'GET',
-    });
-    
-    return response.success && response.data ? {
-      id: 1,
-      'cbu90%': response.data.cbu90,
-      'cbu100%': response.data.cbu100,
-    } : null;
-  } catch (error) {
-    console.error('Error fetching macro:', error);
-    return null;
-  }
+  // La API devuelve CBUs globales (ID=1); se ignora el parámetro id
+  const response = await apiRequest<{ cbu90: string; cbu100: string }>('/api/macros/cbus', {
+    method: 'GET',
+  });
+  return response.success && response.data ? {
+    id: 1,
+    'cbu90%': response.data.cbu90,
+    'cbu100%': response.data.cbu100,
+  } : null;
 };
 
 export const updateMacro = async (id: number, updates: Partial<Macro>) => {
-  try {
-    const response = await apiRequest('/modificar_cbus_macro', {
-      method: 'PUT',
-      body: JSON.stringify({
-        cbu90_nuevo: updates['cbu90%'],
-        cbu100_nuevo: updates['cbu100%'],
-      }),
-    });
-    
-    if (!response.success) {
-      throw new Error(response.message || 'Error updating macro');
-    }
-    
-    return response.data;
-  } catch (error) {
-    console.error('Error updating macro:', error);
-    throw error;
+  const response = await apiRequest('/api/macros/cbus', {
+    method: 'PUT',
+    body: JSON.stringify({
+      cbu90: updates['cbu90%'],
+      cbu100: updates['cbu100%'],
+    }),
+  });
+  if (!response.success) {
+    throw new Error(response.message || 'Error updating macro');
   }
+  return response.data;
 };
 
 // --- CAJEROS ---
 export const fetchCajerosForAdmin = async (adminId: number): Promise<Cajero[]> => {
-  try {
-    const response = await apiRequest<Cajero[]>('/obtener_cajeros_por_administrador', {
-      method: 'POST',
-      body: JSON.stringify({ id_administrador: adminId }),
-    });
-    
-    return response.success ? response.data || [] : [];
-  } catch (error) {
-    console.error('Error fetching cajeros for admin:', error);
-    return [];
-  }
+  const response = await apiRequest<Cajero[]>(`/api/admin/${adminId}/cajeros`, {
+    method: 'GET',
+  });
+  return response.success ? response.data || [] : [];
 };
 
 export const updateCajero = async (id: number, updates: Partial<Cajero>) => {
-  try {
-    const response = await apiRequest('/modificar_cajero_por_id', {
-      method: 'PUT',
-      body: JSON.stringify({
-        id_cajero: id,
-        ...updates,
-      }),
-    });
-    
-    if (!response.success) {
-      throw new Error(response.message || 'Error updating cajero');
-    }
-    
-    return response.data;
-  } catch (error) {
-    console.error('Error updating cajero:', error);
-    throw error;
+  const response = await apiRequest(`/api/cajero/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+      ...updates,
+    }),
+  });
+  if (!response.success) {
+    throw new Error(response.message || 'Error updating cajero');
   }
+  return response.data;
 };
 
 // --- ADMINISTRADORES ---
 export const fetchAllAdmins = async (): Promise<Administrador[]> => {
-  try {
-    const response = await apiRequest<Administrador[]>('/obtener_todos_administradores', {
-      method: 'GET',
-    });
-    
-    return response.success ? response.data || [] : [];
-  } catch (error) {
-    console.error('Error fetching admins:', error);
-    return [];
-  }
+  const response = await apiRequest<Administrador[]>('/api/admin/all', {
+    method: 'GET',
+  });
+  return response.success ? response.data || [] : [];
 };
 
 export const updateAdmin = async (id: number, updates: Partial<Administrador>) => {
-  try {
-    const response = await apiRequest('/modificar_administrador_por_id', {
-      method: 'PUT',
-      body: JSON.stringify({
-        id_admin: id,
-        ...updates,
-      }),
-    });
-    
-    if (!response.success) {
-      throw new Error(response.message || 'Error updating admin');
-    }
-    
-    return response.data;
-  } catch (error) {
-    console.error('Error updating admin:', error);
-    throw error;
+  const response = await apiRequest(`/api/admin/${id}`, {
+    method: 'PUT',
+    body: JSON.stringify({
+      ...updates,
+    }),
+  });
+  if (!response.success) {
+    throw new Error(response.message || 'Error updating admin');
   }
+  return response.data;
 };
 
 // --- FUNCIONES AUXILIARES PARA OBTENER IDs ---
 export const getAdminIdByName = async (nombre: string): Promise<number | null> => {
-  try {
-    const response = await apiRequest<{id: number}>('/obtener_id_administrador_por_nombre', {
-      method: 'POST',
-      body: JSON.stringify({ nombre }),
-    });
-    
-    return response.success && response.data ? response.data.id : null;
-  } catch (error) {
-    console.error('Error getting admin ID by name:', error);
-    return null;
-  }
+  const response = await apiRequest<{ id: number }>(`/api/admin/name/${encodeURIComponent(nombre)}`, {
+    method: 'GET',
+  });
+  return response.success && response.data ? response.data.id : null;
 };
 
 export const getCajeroIdByName = async (nombre: string): Promise<number | null> => {
-  try {
-    const response = await apiRequest<{id: number}>('/obtener_id_cajero_por_nombre', {
-      method: 'POST',
-      body: JSON.stringify({ nombre }),
-    });
-    
-    return response.success && response.data ? response.data.id : null;
-  } catch (error) {
-    console.error('Error getting cajero ID by name:', error);
-    return null;
-  }
+  const response = await apiRequest<{ id: number }>(`/api/cajero/name/${encodeURIComponent(nombre)}`, {
+    method: 'GET',
+  });
+  return response.success && response.data ? response.data.id : null;
 };
 
 // --- FUNCIONES NO DISPONIBLES EN LA API FLASK ---
@@ -239,48 +188,9 @@ export const createAdmin = async (newAdmin: Omit<Administrador, 'id'>) => {
   throw new Error('Función no disponible en la API Flask');
 };
 
-// --- SUSCRIPCIONES EN TIEMPO REAL ---
+// --- ACTUALIZACIONES PERIÓDICAS (POLLING) ---
 // Las suscripciones en tiempo real no están disponibles con una API REST
 // Se implementa un sistema de polling como alternativa
-
-interface MockChannel {
-  unsubscribe: () => void;
-}
-
-export const subscribeToCajeroChanges = (
-  cajeroIds: number[], 
-  onUpdate: (updatedCajero: Cajero) => void
-): MockChannel => {
-  console.warn('subscribeToCajeroChanges: Las suscripciones en tiempo real no están disponibles con la API REST');
-  console.log('Se recomienda implementar polling manual para obtener actualizaciones');
-  
-  // Retornamos un objeto mock para mantener compatibilidad
-  return {
-    unsubscribe: () => console.log('Mock unsubscribe called for cajero changes'),
-  };
-};
-
-export const subscribeToRelationChanges = (
-  adminId: number, 
-  onRelationChange: () => void
-): MockChannel => {
-  console.warn('subscribeToRelationChanges: Las suscripciones en tiempo real no están disponibles con la API REST');
-  console.log('Se recomienda implementar polling manual para obtener actualizaciones');
-  
-  // Retornamos un objeto mock para mantener compatibilidad
-  return {
-    unsubscribe: () => console.log('Mock unsubscribe called for relation changes'),
-  };
-};
-
-// Función auxiliar para remover canales (compatibilidad con Supabase)
-export const supabase = {
-  removeChannel: (channel: MockChannel) => {
-    if (channel && typeof channel.unsubscribe === 'function') {
-      channel.unsubscribe();
-    }
-  }
-};
 
 // --- FUNCIONES DE POLLING PARA SIMULAR TIEMPO REAL ---
 // Estas funciones pueden ser utilizadas para implementar actualizaciones periódicas

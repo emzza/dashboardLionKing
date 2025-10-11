@@ -1,5 +1,5 @@
 {
   "name": "Gestor de Cajeros y Macros",
-  "description": "Una aplicación web para gestionar cajeros, macros y administradores utilizando una base de datos Supabase. Permite iniciar sesión, modificar datos y administrar usuarios según los permisos.",
+  "description": "Una aplicación web para gestionar cajeros, macros y administradores consumiendo una API en Flask. Permite iniciar sesión, modificar datos y administrar usuarios según los permisos.",
   "requestFramePermissions": []
 }

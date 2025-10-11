@@ -2,7 +2,7 @@
 
 ## Resumen del Proyecto
 
-**Dashboard Lion King** es una aplicación web desarrollada en React con TypeScript que permite gestionar cajeros, macros y administradores. Actualmente utiliza Supabase como backend y base de datos, pero se migrará a una API desarrollada en Python con Flask.
+**Dashboard Lion King** es una aplicación web desarrollada en React con TypeScript que permite gestionar cajeros, macros y administradores. El backend actual es una API desarrollada en Python con Flask.
 
 ## Arquitectura Actual
 
@@ -10,7 +10,7 @@
 - **Frontend**: React 19.1.1 + TypeScript
 - **Build Tool**: Vite 6.2.0
 - **Styling**: Tailwind CSS (CDN)
-- **Backend Actual**: Supabase (PostgreSQL + API REST + Realtime)
+- **Backend**: API Flask (REST)
 - **Deployment**: Serve (para producción)
 
 ### Estructura de Archivos
@@ -31,7 +31,7 @@ dashboardLionKing/
 │   └── ui/
 │       └── ButtonSideBar.tsx # Botón para toggle del sidebar
 ├── services/
-│   └── supabase.ts           # Servicios de conexión a Supabase
+│   └── api.ts                # Cliente HTTP para API Flask
 ├── App.tsx                   # Componente raíz
 ├── constants.tsx             # Iconos SVG y constantes
 ├── types.ts                  # Definiciones de tipos TypeScript
@@ -118,20 +118,18 @@ interface Macro {
   - `fetchMacro(id)`
   - `updateMacro(id, updates)`
 
-## Servicios de Supabase Actuales
+## Servicios disponibles vía API Flask
 
 ### Autenticación
-- `signIn(nombre, contrasena)`: Verifica credenciales
+- `signIn(nombre, contrasena)`: Verifica credenciales contra la API
 
 ### Operaciones CRUD
-- **Cajeros**: fetch, update, create, fetchAll
-- **Administradores**: fetchAll, update, create
-- **Macros**: fetch, update
-- **Relaciones**: linkCajeroToAdmin, updateAdminCajeroRelations
+- **Cajeros**: obtener por administrador, actualizar
+- **Administradores**: obtener todos, actualizar
+- **Macros**: obtener y actualizar
 
-### Tiempo Real
-- `subscribeToCajeroChanges()`: Suscripción a cambios en cajeros
-- `subscribeToRelationChanges()`: Suscripción a cambios en relaciones
+### Actualizaciones
+- Actualizaciones en tiempo real no disponibles; usar polling si es necesario
 
 ## Flujo de Navegación
 
@@ -171,7 +169,6 @@ Tipos de notificación:
 ```json
 {
   "dependencies": {
-    "@supabase/supabase-js": "^2.58.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "serve": "^14.2.3"
@@ -182,8 +179,7 @@ Tipos de notificación:
 ## Configuración de Entorno
 
 Variables requeridas:
-- `VITE_SUPABASE_URL_KEY`: URL de la instancia de Supabase
-- `VITE_SUPABASE_API_KEY`: Clave API de Supabase
+- `VITE_API_BASE_URL`: URL base de la API Flask
 
 ## Puntos de Migración Identificados
 

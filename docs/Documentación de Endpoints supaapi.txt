@@ -1,0 +1,102 @@
+Documentación de Endpoints API (Administración y Cajeros)
+Este documento resume los endpoints de la API para la gestión de administradores, cajeros y CBUs macro, describiendo su funcionalidad, las variables que utiliza y la función interna (database_connector) que ejecuta.
+
+1. Endpoints de Administradores
+Endpoint
+
+Descripción
+
+Variables (Ubicación)
+
+Función de database_connector Invocada
+
+POST /api/admin/login
+
+Permite a un administrador autenticarse en el sistema mediante credenciales.
+
+nombre (Body JSON), contrasena (Body JSON)
+
+iniciar_sesion_administrador
+
+GET /api/admin/all
+
+Recupera una lista con la información de todos los administradores registrados en la base de datos.
+
+Ninguna
+
+obtener_todos_administradores
+
+GET /api/admin/name/<nombre>
+
+Busca y devuelve el identificador (ID) de un administrador utilizando su nombre.
+
+nombre (Parámetro de Ruta)
+
+obtener_id_administrador_por_nombre
+
+PUT /api/admin/<admin_id>
+
+Actualiza la información de un administrador específico identificado por su ID.
+
+admin_id (Parámetro de Ruta), Campos a modificar dinámicos (Body JSON)
+
+modificar_administrador_por_id
+
+2. Endpoints de Cajeros
+Endpoint
+
+Descripción
+
+Variables (Ubicación)
+
+Función de database_connector Invocada
+
+GET /api/admin/<admin_id>/cajeros
+
+Lista todos los cajeros que están asociados o dependen del administrador dado por su ID.
+
+admin_id (Parámetro de Ruta)
+
+obtener_cajeros_por_administrador
+
+GET /api/cajero/name/<nombre>
+
+Busca y devuelve el identificador (ID) de un cajero utilizando su nombre.
+
+nombre (Parámetro de Ruta)
+
+obtener_id_cajero_por_nombre
+
+PUT /api/cajero/<cajero_id>
+
+Actualiza la información de un cajero específico identificado por su ID.
+
+cajero_id (Parámetro de Ruta), Campos a modificar dinámicos (Body JSON)
+
+modificar_cajero_por_id
+
+3. Endpoints de CBUs Macro
+Endpoint
+
+Descripción
+
+Variables (Ubicación)
+
+Función de database_connector Invocada
+
+GET /api/macros/cbus
+
+Recupera los números de CBU (Clave Bancaria Uniforme) definidos como macro para el sistema.
+
+Ninguna
+
+obtener_cbus_macro
+
+PUT /api/macros/cbus
+
+Modifica los dos números de CBU macro (cbu90 y cbu100) utilizados por el sistema.
+
+cbu90 (Body JSON), cbu100 (Body JSON)
+
+modificar_cbus_macro
+
