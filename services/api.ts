@@ -2,7 +2,7 @@ import { Administrador, Cajero, Macro } from '../types';
 
 // Configuración de la API Flask
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
-
+  
 // Interfaces para las respuestas de la API Flask
 interface ApiResponse<T = any> {
   success: boolean;
@@ -51,7 +51,7 @@ const apiRequest = async <T = any>(endpoint: string, options: RequestInit = {}):
 
 // --- AUTENTICACIÓN ---
 export const signIn = async (nombre: string, contrasena: string): Promise<Administrador | null> => {
-  const response = await apiRequest<Administrador>('/admin/login', {
+  const response = await apiRequest<Administrador>('api/admin/login', {
     method: 'POST',
     body: JSON.stringify({ nombre, contrasena }),
   });
