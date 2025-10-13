@@ -20,7 +20,7 @@ interface CajerosProps {
   setIsOpen: (open: boolean) => void;
 }
 
-const Cajeros: React.FC<CajerosProps> = ({ admin, isOpen, setIsOpen }) => {
+function Cajeros({ admin, isOpen, setIsOpen }: CajerosProps) {
   const [cajeros, setCajeros] = useState<Cajero[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingCajero, setEditingCajero] = useState<Cajero | null>(null);
@@ -180,7 +180,7 @@ if (loading) {
             placeholder="Buscar por nombre..."
             value={filters.nombre}
             onChange={handleFilterChange}
-            className="w-full md:w-auto bg-gray-700 border border-gray-600 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500 flex-grow"
+            className="w-full md:w-auto bg-gray-700 border border-gray-600 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500"
         />
         <select
             name="estado"
@@ -212,11 +212,7 @@ if (loading) {
             {filteredCajeros.map((cajero) => (
               <tr
                   key={cajero.id}
-                  className={`${
-                    cajero.estadolinea === 'open'
-                      ? 'bg-green-500/10'
-                      : 'bg-red-500/10'
-                  } hover:bg-gray-700/50 transition-colors`}
+                  className={`${cajero.estadolinea ? 'bg-green-500/10' : 'bg-red-500/10'} hover:bg-gray-700/50 transition-colors`}
                 >
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
                   {cajero.nombre}
@@ -224,14 +220,10 @@ if (loading) {
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
                   <span
                     className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                      cajero.estadolinea === 'open'
-                        ? 'bg-green-500/30 text-green-200'
-                        : 'bg-red-500/30 text-red-200'
+                      cajero.estadolinea ? 'bg-green-500/30 text-green-200' : 'bg-red-500/30 text-red-200'
                     }`}
                   >
-                    {cajero.estadolinea === 'open'
-                      ? 'En Línea'
-                      : 'Fuera de Línea'}
+                    {cajero.estadolinea ? 'En Línea' : 'Fuera de Línea'}
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{cajero.conteo} / {cajero.maxconteo}</td>
