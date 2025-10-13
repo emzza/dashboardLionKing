@@ -51,27 +51,35 @@ const Cajeros: React.FC<CajerosProps> = ({ admin, isOpen, setIsOpen }) => {
     }
   }, [admin.id, cajeros.length]);
   
+  const normalizeCajero = (c: any): Cajero => ({
+    ...c,
+    estadolinea:
+      typeof c.estadolinea === 'string'
+        ? c.estadolinea.toLowerCase() === 'open'
+        : !!c.estadolinea,
+    conteoDia: c.conteoDia ?? c.conteodia ?? 0,
+  });
 
   useEffect(() => {
-  loadCajeros();
-
-  const channel = supabase
-    .channel('cajeros-realtime')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'cajeros', filter: 'estadolinea=in.(open,close)'}, (payload) => {
-      console.log(payload);
-      if (payload.eventType === 'INSERT') setCajeros((prev) => [...prev, payload.new]);
-      if (payload.eventType === 'UPDATE') setCajeros((prev) =>
-        prev.map((c) => ( c.id === payload.new.id
-        ? { ...c, ...payload.new } // Combina sin perder los otros campos
-        : c))
-      );
-      if (payload.eventType === 'DELETE') setCajeros((prev) => prev.filter((c) => c.id !== payload.old.id));
-    })
-    .subscribe();
-
-  return () => supabase.removeChannel(channel);
-}, [admin.id]);
-
+    loadCajeros();
+    const channel = supabase
+      .channel('cajeros-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'cajeros' }, (payload) => {
+        if (payload.eventType === 'INSERT') {
+          setCajeros((prev) => [...prev, normalizeCajero(payload.new)]);
+        }
+        if (payload.eventType === 'UPDATE') {
+          setCajeros((prev) =>
+            prev.map((c) => (c.id === payload.new.id ? { ...c, ...normalizeCajero(payload.new) } : c))
+          );
+        }
+        if (payload.eventType === 'DELETE') {
+          setCajeros((prev) => prev.filter((c) => c.id !== payload.old.id));
+        }
+      })
+      .subscribe();
+    return () => supabase.removeChannel(channel);
+  }, [admin.id]);
   
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;

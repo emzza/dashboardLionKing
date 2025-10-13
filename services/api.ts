@@ -92,18 +92,15 @@ export const fetchCajerosForAdmin = async (adminId: number): Promise<Cajero[]> =
   const response = await apiRequest<{ cajeros: Cajero[] } | Cajero[]>(`/admin/${adminId}/cajeros`, {
     method: 'GET',
   });
-  // El backend puede devolver { success: true, cajeros: [...] } o un array directo
   const cajeros = (response as any).cajeros ?? response.data ?? [];
-  // Normalizamos campos para que coincidan con la interfaz Cajero del frontend
   const normalized = Array.isArray(cajeros)
     ? cajeros.map((c: any) => ({
         ...c,
-        // Convertir 'open'/'close' a booleano
+        // SIEMPRE boolean
         estadolinea:
           typeof c.estadolinea === 'string'
             ? c.estadolinea.toLowerCase() === 'open'
-            : c.estadolinea ? 'open' : 'close',
-        // Mapear 'conteodia' (backend) a 'conteoDia' (frontend)
+            : !!c.estadolinea,
         conteoDia: c.conteoDia ?? c.conteodia ?? 0,
       }))
     : [];
