@@ -56,7 +56,7 @@ const Cajeros: React.FC<CajerosProps> = ({ admin, isOpen, setIsOpen }) => {
 
   const channel = supabase
     .channel('cajeros-realtime')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'cajeros' }, (payload) => {
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'cajeros', filter: 'estadolinea=eq.Open'}, (payload) => {
       if (payload.eventType === 'INSERT') setCajeros((prev) => [...prev, payload.new]);
       if (payload.eventType === 'UPDATE') setCajeros((prev) =>
         prev.map((c) => (c.id === payload.new.id ? payload.new : c))
