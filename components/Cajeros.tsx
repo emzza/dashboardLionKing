@@ -140,11 +140,9 @@ const Cajeros: React.FC<CajerosProps> = ({ admin, isOpen, setIsOpen }) => {
   }
 };
 
-
-
-  if (loading) {
-    return <div className="flex justify-center items-center h-full"><Spinner /></div>;
-  }
+if (loading) {
+  return <div className="flex justify-center items-center h-full"><Spinner /></div>;
+}
 
   return (
     <div>
@@ -200,102 +198,70 @@ const Cajeros: React.FC<CajerosProps> = ({ admin, isOpen, setIsOpen }) => {
               <th scope="col" className="relative px-6 py-3"><span className="sr-only">Editar</span></th>
             </tr>
           </thead>
-         <tbody className="bg-gray-800/50 divide-y divide-gray-700">
-         
-            {(() => {
-              const filteredCajeros = cajeros.filter((c) =>
-                ['open', 'close'].includes(c.estadolinea)
-              );
-
-              return (
-                <>
-                  {filteredCajeros.map((cajero) => (
-                    <tr
-                      key={cajero.id}
-                      className={`${
-                        cajero.estadolinea === 'open'
-                          ? 'bg-green-500/10'
-                          : 'bg-red-500/10'
-                      } hover:bg-gray-700/50 transition-colors`}
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
-                        {cajero.nombre}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <span
-                          className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            cajero.estadolinea === 'open'
-                              ? 'bg-green-500/30 text-green-200'
-                              : 'bg-red-500/30 text-red-200'
-                          }`}
-                        >
-                          {cajero.estadolinea === 'open' ? 'En Línea' : 'Fuera de Línea'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                        {cajero.conteo} / {cajero.maxconteo}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-                        {cajero.conteodia}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        <input
-                          type="number"
-                          value={investments[cajero.id] || ''}
-                          onChange={(e) =>
-                            handleInvestmentChange(cajero.id, e.target.value)
-                          }
-                          placeholder="Monto"
-                          className="w-24 bg-gray-700 border border-gray-600 rounded-md py-1 px-2 text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
-                        />
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300 font-mono">
-                        {(() => {
-                          const investment = parseFloat(investments[cajero.id]) || 0;
-                          if (investment > 0 && cajero.conteodia > 0) {
+          
+          <tbody className="bg-gray-800/50 divide-y divide-gray-700">
+            {filteredCajeros.map((cajero) => (
+              <tr
+                  key={cajero.id}
+                  className={`${
+                    cajero.estadolinea === 'open'
+                      ? 'bg-green-500/10'
+                      : 'bg-red-500/10'
+                  } hover:bg-gray-700/50 transition-colors`}
+                >
+                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
+                  {cajero.nombre}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                  <span
+                    className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                      cajero.estadolinea === 'open'
+                        ? 'bg-green-500/30 text-green-200'
+                        : 'bg-red-500/30 text-red-200'
+                    }`}
+                  >
+                    {cajero.estadolinea === 'open'
+                      ? 'En Línea'
+                      : 'Fuera de Línea'}
+                  </span>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{cajero.conteo} / {cajero.maxconteo}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{cajero.conteodia}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm">
+                  <input
+                      type="number"
+                      value={investments[cajero.id] || ''}
+                      onChange={(e) => handleInvestmentChange(cajero.id, e.target.value)}
+                      placeholder="Monto"
+                      className="w-24 bg-gray-700 border border-gray-600 rounded-md py-1 px-2 text-white focus:outline-none focus:ring-1 focus:ring-emerald-500"
+                  />
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300 font-mono">
+                    {(() => {
+                        const investment = parseFloat(investments[cajero.id]) || 0;
+                        if (investment > 0 && cajero.conteodia > 0) {
                             const cpm = (investment / cajero.conteodia).toFixed(2);
                             return `$${cpm}`;
-                          }
-                          return '$0.00';
-                        })()}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button
-                          onClick={() => handleEdit(cajero)}
-                          className="text-emerald-400 hover:text-emerald-300"
-                        >
-                          {ICONS.edit}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-
-                  {cajeros.length === 0 && (
-                    <tr>
-                      <td
-                        colSpan={8}
-                        className="text-center py-10 text-gray-500"
-                      >
-                        No hay cajeros asignados.
-                      </td>
-                    </tr>
-                  )}
-
-                  {cajeros.length > 0 && filteredCajeros.length === 0 && (
-                    <tr>
-                      <td
-                        colSpan={8}
-                        className="text-center py-10 text-gray-500"
-                      >
-                        No se encontraron cajeros con los filtros aplicados.
-                      </td>
-                    </tr>
-                  )}
-                </>
-              );
-            })()}
+                        }
+                        return '$0.00';
+                    })()}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                  <button onClick={() => handleEdit(cajero)} className="text-emerald-400 hover:text-emerald-300">{ICONS.edit}</button>
+                </td>
+              </tr>
+            ))}
+             {cajeros.length === 0 && (
+                <tr>
+                  <td colSpan={8} className="text-center py-10 text-gray-500">No hay cajeros asignados.</td>
+                </tr>
+              )}
+               {cajeros.length > 0 && filteredCajeros.length === 0 && (
+                <tr>
+                  <td colSpan={8} className="text-center py-10 text-gray-500">No se encontraron cajeros con los filtros aplicados.</td>
+                </tr>
+              )}
           </tbody>
-
         </table>
       </div>
 
