@@ -203,11 +203,6 @@ if (loading) {
             {filteredCajeros.map((cajero) => (
               <tr
                   key={cajero.id}
-                  className={`${
-                    cajero.estadolinea === 'open'
-                      ? 'bg-green-500/10'
-                      : 'bg-red-500/10'
-                  } hover:bg-gray-700/50 transition-colors`}
                 >
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
                   {cajero.nombre}
