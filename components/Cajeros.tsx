@@ -1,3 +1,4 @@
+import { createCajero } from '../services/api';
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Administrador, Cajero, Notification as NotificationType, NotificationType as NTEnum } from '../types';
 import {
@@ -116,9 +117,12 @@ const Cajeros: React.FC<CajerosProps> = ({ admin, isOpen, setIsOpen }) => {
     setSaving(true);
     setNotification(null);
     try {
+        // 📡 Llamada al backend Flask
+        const cajeroCreado = await createCajero(admin.id, newCajeroData);
         // Las funciones createCajero y linkCajeroToAdmin no están disponibles en la API Flask
-        setNotification({ message: 'La creación de cajeros no está disponible en la API Flask.', type: NTEnum.ERROR });
+        setNotification({ message: `Cajero "${cajeroCreado.nombre}" creado con éxito.`, type: NTEnum.ERROR });
         setCreateModalOpen(false);
+         await loadCajeros(); //Vuelve a cargar los cajeros desde la API
     } catch (error) {
         const err = error as Error;
         setNotification({ message: `Error al crear: ${err.message}`, type: NTEnum.ERROR });

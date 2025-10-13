@@ -170,11 +170,32 @@ export const fetchAllCajeros = async (): Promise<Cajero[]> => {
   return [];
 };
 
-export const createCajero = async (newCajero: Omit<Cajero, 'id'>) => {
-  // Esta función no tiene equivalente directo en la API Flask
-  console.warn('createCajero: Esta función no tiene equivalente en la API Flask');
-  throw new Error('Función no disponible en la API Flask');
+export const createCajero = async (
+  adminId: number,
+  newCajero: Omit<Cajero, 'id'>
+) => {
+  try {
+    const response = await fetch(`/api/admin/${adminId}/cajeros`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newCajero),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.message || 'Error al crear cajero');
+    }
+
+    return data.cajero; // el objeto que devuelve tu API Flask
+  } catch (error) {
+    console.error('Error en createCajero:', error);
+    throw error;
+  }
 };
+
 
 export const linkCajeroToAdmin = async (cajeroId: number, adminId: number) => {
   // Esta función no tiene equivalente directo en la API Flask
