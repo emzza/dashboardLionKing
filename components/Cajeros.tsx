@@ -199,7 +199,7 @@ const Cajeros: React.FC<CajerosProps> = ({ admin, isOpen, setIsOpen }) => {
                     </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{cajero.conteo} / {cajero.maxconteo}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{cajero.conteoDia}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{cajero.conteodia}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
                   <input
                       type="number"
@@ -212,8 +212,8 @@ const Cajeros: React.FC<CajerosProps> = ({ admin, isOpen, setIsOpen }) => {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300 font-mono">
                     {(() => {
                         const investment = parseFloat(investments[cajero.id]) || 0;
-                        if (investment > 0 && cajero.conteoDia > 0) {
-                            const cpm = (investment / cajero.conteoDia).toFixed(2);
+                        if (investment > 0 && cajero.conteodia > 0) {
+                            const cpm = (investment / cajero.conteodia).toFixed(2);
                             return `$${cpm}`;
                         }
                         return '$0.00';
@@ -315,8 +315,8 @@ const EditCajeroModal: React.FC<EditCajeroModalProps> = ({ cajero, onClose, onSa
                     className="w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"/>
             </div>
             <div>
-                <label htmlFor="conteoDia" className="block text-sm font-medium mb-1">Conteo Día</label>
-                <input type="number" name="conteoDia" id="conteoDia" value={formData.conteoDia} onChange={handleFormChange}
+                <label htmlFor="conteodia" className="block text-sm font-medium mb-1">Conteo Día</label>
+                <input type="number" name="conteodia" id="conteodia" value={formData.conteodia} onChange={handleFormChange}
                     className="w-full bg-gray-700 border border-gray-600 rounded-md shadow-sm py-2 px-3 text-white focus:outline-none focus:ring-emerald-500 focus:border-emerald-500"/>
             </div>
              <div className="md:col-span-2 flex items-center">
@@ -368,7 +368,7 @@ const CreateCajeroModal: React.FC<CreateCajeroModalProps> = ({ onClose, onSave, 
             ...formData,
             estadolinea: false,
             conteo: 0,
-            conteoDia: 0,
+            conteodia: 0,
         };
         onSave(newCajero);
     };
