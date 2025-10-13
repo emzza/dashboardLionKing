@@ -51,11 +51,11 @@ const apiRequest = async <T = any>(endpoint: string, options: RequestInit = {}):
 
 // --- AUTENTICACIÓN ---
 export const signIn = async (nombre: string, contrasena: string): Promise<Administrador | null> => {
-  const response = await apiRequest<{ admin: Administrador } | Administrador>('/login', {
+  const response = await apiRequest<{ admin: Administrador } | Administrador>('/admin/login', {
     method: 'POST',
     body: JSON.stringify({ nombre, contrasena }),
   });
-  // El backend devuelve { success: true, admin: {...} }. Aceptamos también { success, data }.
+  // El backend puede devolver { success: true, admin: {...} }.
   const admin = (response as any).admin ?? response.data ?? null;
   return response.success ? (admin as Administrador) || null : null;
 };
