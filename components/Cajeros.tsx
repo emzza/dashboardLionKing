@@ -56,7 +56,7 @@ const Cajeros: React.FC<CajerosProps> = ({ admin, isOpen, setIsOpen }) => {
 
   const channel = supabase
     .channel('cajeros-realtime')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'cajeros', filter: 'estadolinea=eq.open'}, (payload) => {
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'cajeros'}, (payload) => {
       if (payload.eventType === 'INSERT') setCajeros((prev) => [...prev, payload.new]);
       if (payload.eventType === 'UPDATE') setCajeros((prev) =>
         prev.map((c) => (c.id === payload.new.id ? payload.new : c))
@@ -68,11 +68,6 @@ const Cajeros: React.FC<CajerosProps> = ({ admin, isOpen, setIsOpen }) => {
   return () => supabase.removeChannel(channel);
 }, [admin.id]);
 
-
-  // Effect 2: No longer needed since we're using polling instead of individual subscriptions
-  // useEffect(() => {
-  //   // This effect is no longer needed with the REST API approach
-  // }, [cajeroIdString]);
   
   const handleFilterChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
