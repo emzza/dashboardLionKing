@@ -115,26 +115,33 @@ const Cajeros: React.FC<CajerosProps> = ({ admin, isOpen, setIsOpen }) => {
   };
 
   const handleCreate = async (newCajeroData: Omit<Cajero, 'id'>) => {
-    setSaving(true);
-    setNotification(null);
-    try {
-      const cajeroCreado = await createCajero(newCajeroData);
-      setNotification({ 
-        message: `Cajero "${cajeroCreado.nombre}" creado con éxito.`, 
-        type: NTEnum.SUCCESS 
-      });
-      setCreateModalOpen(false);
-      await loadCajeros(); // Vuelve a cargar los cajeros desde la API
-    } catch (error) {
-      const err = error as Error;
-      setNotification({ 
-        message: `Error al crear: ${err.message}`, 
-        type: NTEnum.ERROR 
-      });
-    } finally {
-      setSaving(false);
-    }
-  };
+  setSaving(true);
+  setNotification(null);
+
+  try {
+    // 📡 Llamada al backend Flask
+    const cajeroCreado = await createCajero(newCajeroData);
+
+    // ✅ Agregar el nuevo cajero directamente a la tabla
+    setCajeros((prev) => [...prev, cajeroCreado]);
+
+    // ✅ Notificación de éxito
+    setNotification({ 
+      message: `Cajero "${cajeroCreado.nombre}" creado con éxito.`, 
+      type: NTEnum.SUCCESS 
+    });
+
+    // ✅ Cerrar el modal
+    setCreateModalOpen(false);
+
+  } catch (error) {
+    const err = error as Error;
+    setNotification({ message: `Error al crear: ${err.message}`, type: NTEnum.ERROR });
+  } finally {
+    setSaving(false);
+  }
+};
+
 
 
   if (loading) {
