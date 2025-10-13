@@ -102,7 +102,7 @@ export const fetchCajerosForAdmin = async (adminId: number): Promise<Cajero[]> =
         estadolinea:
           typeof c.estadolinea === 'string'
             ? c.estadolinea.toLowerCase() === 'open'
-            : !!c.estadolinea,
+            : c.estadolinea ? 'open' : 'close',
         // Mapear 'conteodia' (backend) a 'conteoDia' (frontend)
         conteoDia: c.conteoDia ?? c.conteodia ?? 0,
       }))

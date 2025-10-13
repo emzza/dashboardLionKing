@@ -42,6 +42,7 @@ const Cajeros: React.FC<CajerosProps> = ({ admin, isOpen, setIsOpen }) => {
     if (!cajeros.length) setLoading(true);
     try {
       const data = await fetchCajerosForAdmin(admin.id);
+      
       setCajeros(data);
     } catch (error) {
       setNotification({ message: 'Error al cargar los cajeros.', type: NTEnum.ERROR });
@@ -49,7 +50,7 @@ const Cajeros: React.FC<CajerosProps> = ({ admin, isOpen, setIsOpen }) => {
       setLoading(false);
     }
   }, [admin.id, cajeros.length]);
-
+  
 
   useEffect(() => {
   loadCajeros();
@@ -203,6 +204,11 @@ if (loading) {
             {filteredCajeros.map((cajero) => (
               <tr
                   key={cajero.id}
+                  className={`${
+                    cajero.estadolinea === 'open'
+                      ? 'bg-green-500/10'
+                      : 'bg-red-500/10'
+                  } hover:bg-gray-700/50 transition-colors`}
                 >
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-white">
                   {cajero.nombre}
