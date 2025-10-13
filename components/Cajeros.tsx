@@ -56,10 +56,12 @@ const Cajeros: React.FC<CajerosProps> = ({ admin, isOpen, setIsOpen }) => {
 
   const channel = supabase
     .channel('cajeros-realtime')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'cajeros'}, (payload) => {
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'cajeros', filter: 'estadolinea=in.(open,close)'}, (payload) => {
       if (payload.eventType === 'INSERT') setCajeros((prev) => [...prev, payload.new]);
       if (payload.eventType === 'UPDATE') setCajeros((prev) =>
-        prev.map((c) => (c.id === payload.new.id ? payload.new : c))
+        prev.map((c) => ( c.id === payload.new.id
+        ? { ...c, ...payload.new } // Combina sin perder los otros campos
+        : c))
       );
       if (payload.eventType === 'DELETE') setCajeros((prev) => prev.filter((c) => c.id !== payload.old.id));
     })
