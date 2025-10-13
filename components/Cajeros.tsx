@@ -12,6 +12,7 @@ import { ButtonSidebar } from './ui/ButtonSideBar';
 import { ICONS } from '../constants';
 import Modal from './Modal';
 import Notification from './Notification';
+import { supabase } from '../services/supabase';
 
 interface CajerosProps {
   admin: Administrador;
@@ -49,24 +50,24 @@ const Cajeros: React.FC<CajerosProps> = ({ admin, isOpen, setIsOpen }) => {
     }
   }, [admin.id, cajeros.length]);
 
-  // Effect 1: Handles initial data load and sets up polling for updates
+
   useEffect(() => {
-    loadCajeros();
+  loadCajeros();
 
-    // Implementar polling para simular actualizaciones en tiempo real
-    const pollingInterval = startPolling(async () => {
-      try {
-        const data = await fetchCajerosForAdmin(admin.id);
-        setCajeros(data);
-      } catch (error) {
-        console.error('Error during polling:', error);
-      }
-    }, 30000); // Poll cada 30 segundos
+  const channel = supabase
+    .channel('cajeros-realtime')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'cajeros' }, (payload) => {
+      if (payload.eventType === 'INSERT') setCajeros((prev) => [...prev, payload.new]);
+      if (payload.eventType === 'UPDATE') setCajeros((prev) =>
+        prev.map((c) => (c.id === payload.new.id ? payload.new : c))
+      );
+      if (payload.eventType === 'DELETE') setCajeros((prev) => prev.filter((c) => c.id !== payload.old.id));
+    })
+    .subscribe();
 
-    return () => {
-      stopPolling(pollingInterval);
-    };
-  }, [admin.id, loadCajeros]);
+  return () => supabase.removeChannel(channel);
+}, [admin.id]);
+
 
   // Effect 2: No longer needed since we're using polling instead of individual subscriptions
   // useEffect(() => {
@@ -199,7 +200,7 @@ const Cajeros: React.FC<CajerosProps> = ({ admin, isOpen, setIsOpen }) => {
                     </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{cajero.conteo} / {cajero.maxconteo}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{cajero.conteodia}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{cajero.conteoDia}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
                   <input
                       type="number"
@@ -212,8 +213,8 @@ const Cajeros: React.FC<CajerosProps> = ({ admin, isOpen, setIsOpen }) => {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300 font-mono">
                     {(() => {
                         const investment = parseFloat(investments[cajero.id]) || 0;
-                        if (investment > 0 && cajero.conteodia > 0) {
-                            const cpm = (investment / cajero.conteodia).toFixed(2);
+                        if (investment > 0 && cajero.conteoDia > 0) {
+                            const cpm = (investment / cajero.conteoDia).toFixed(2);
                             return `$${cpm}`;
                         }
                         return '$0.00';
