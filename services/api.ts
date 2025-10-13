@@ -89,10 +89,25 @@ export const updateMacro = async (id: number, updates: Partial<Macro>) => {
 
 // --- CAJEROS ---
 export const fetchCajerosForAdmin = async (adminId: number): Promise<Cajero[]> => {
-  const response = await apiRequest<Cajero[]>(`/admin/${adminId}/cajeros`, {
+  const response = await apiRequest<{ cajeros: Cajero[] } | Cajero[]>(`/admin/${adminId}/cajeros`, {
     method: 'GET',
   });
-  return response.success ? response.data || [] : [];
+  // El backend puede devolver { success: true, cajeros: [...] } o un array directo
+  const cajeros = (response as any).cajeros ?? response.data ?? [];
+  // Normalizamos campos para que coincidan con la interfaz Cajero del frontend
+  const normalized = Array.isArray(cajeros)
+    ? cajeros.map((c: any) => ({
+        ...c,
+        // Convertir 'open'/'close' a booleano
+        estadolinea:
+          typeof c.estadolinea === 'string'
+            ? c.estadolinea.toLowerCase() === 'open'
+            : !!c.estadolinea,
+        // Mapear 'conteodia' (backend) a 'conteoDia' (frontend)
+        conteoDia: c.conteoDia ?? c.conteodia ?? 0,
+      }))
+    : [];
+  return response.success ? normalized : [];
 };
 
 export const updateCajero = async (id: number, updates: Partial<Cajero>) => {
