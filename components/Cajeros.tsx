@@ -208,7 +208,7 @@ const Cajeros: React.FC<CajerosProps> = ({ admin, isOpen, setIsOpen }) => {
                     </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{cajero.conteo} / {cajero.maxconteo}</td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{cajero.conteoDia}</td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">{cajero.conteodia}</td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
                   <input
                       type="number"
@@ -221,8 +221,8 @@ const Cajeros: React.FC<CajerosProps> = ({ admin, isOpen, setIsOpen }) => {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300 font-mono">
                     {(() => {
                         const investment = parseFloat(investments[cajero.id]) || 0;
-                        if (investment > 0 && cajero.conteoDia > 0) {
-                            const cpm = (investment / cajero.conteoDia).toFixed(2);
+                        if (investment > 0 && cajero.conteodia > 0) {
+                            const cpm = (investment / cajero.conteodia).toFixed(2);
                             return `$${cpm}`;
                         }
                         return '$0.00';
