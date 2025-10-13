@@ -118,19 +118,24 @@ const Cajeros: React.FC<CajerosProps> = ({ admin, isOpen, setIsOpen }) => {
     setSaving(true);
     setNotification(null);
     try {
-        // 📡 Llamada al backend Flask
-        const cajeroCreado = await createCajero(admin.id, newCajeroData);
-        // Las funciones createCajero y linkCajeroToAdmin no están disponibles en la API Flask
-        setNotification({ message: `Cajero "${cajeroCreado.nombre}" creado con éxito.`, type: NTEnum.ERROR });
-        setCreateModalOpen(false);
-         await loadCajeros(); //Vuelve a cargar los cajeros desde la API
+      const cajeroCreado = await createCajero(newCajeroData);
+      setNotification({ 
+        message: `Cajero "${cajeroCreado.nombre}" creado con éxito.`, 
+        type: NTEnum.SUCCESS 
+      });
+      setCreateModalOpen(false);
+      await loadCajeros(); // Vuelve a cargar los cajeros desde la API
     } catch (error) {
-        const err = error as Error;
-        setNotification({ message: `Error al crear: ${err.message}`, type: NTEnum.ERROR });
+      const err = error as Error;
+      setNotification({ 
+        message: `Error al crear: ${err.message}`, 
+        type: NTEnum.ERROR 
+      });
     } finally {
-        setSaving(false);
+      setSaving(false);
     }
   };
+
 
   if (loading) {
     return <div className="flex justify-center items-center h-full"><Spinner /></div>;

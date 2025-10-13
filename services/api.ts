@@ -170,12 +170,9 @@ export const fetchAllCajeros = async (): Promise<Cajero[]> => {
   return [];
 };
 
-export const createCajero = async (
-  adminId: number,
-  newCajero: Omit<Cajero, 'id'>
-) => {
+export const createCajero = async (newCajero: Omit<Cajero, 'id'>) => {
   try {
-    const response = await fetch(`/api/admin/${adminId}/cajeros`, {
+    const response = await fetch(`/api/cajero/create`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
