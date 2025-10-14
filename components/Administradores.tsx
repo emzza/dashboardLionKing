@@ -7,6 +7,7 @@ import {
   fetchCajerosForAdmin,
   getAdminIdByName,
   getCajeroIdByName,
+  createAdmin,
 } from '../services/api';
 import Spinner from './Spinner';
 import { ICONS } from '../constants';
@@ -66,9 +67,9 @@ const Administradores: React.FC<adminProps> = ({ admin, isOpen, setIsOpen }) => 
         const { id, ...updates } = adminToSave;
         savedAdminData = await updateAdmin(id, updates);
       } else {
-        // Función createAdmin no disponible en la API Flask
-        setNotification({ message: 'La creación de administradores no está disponible en la API Flask.', type: NTEnum.ERROR });
-        return;
+        // Crear nuevo administrador
+        const newAdmin = adminToSave as Omit<Administrador, 'id'>;
+        savedAdminData = await createAdmin(newAdmin);
       }
 
       // Función updateAdminCajeroRelations no disponible en la API Flask

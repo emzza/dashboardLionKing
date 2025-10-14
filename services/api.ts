@@ -175,6 +175,30 @@ export const fetchAllCajeros = async (): Promise<Cajero[]> => {
   return [];
 };
 
+
+export const createAdmin = async (newAdmin: Omit<Administrador, 'id'>) => {
+ try {
+    const response = await fetch(`/api/admin/create`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(newAdmin),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.message || 'Error al crear admin');
+    }
+
+    return data.admin; // el objeto que devuelve tu API Flask
+  } catch (error) {
+    console.error('Error en createAdmin:', error);
+    throw error;
+  }
+};
+
 export const createCajero = async (newCajero: Omit<Cajero, 'id'>) => {
   try {
     const response = await fetch(`/api/cajero/create`, {
@@ -222,11 +246,6 @@ export const updateAdminCajeroRelations = async (adminId: number, cajeroIds: num
   throw new Error('Función no disponible en la API Flask');
 };
 
-export const createAdmin = async (newAdmin: Omit<Administrador, 'id'>) => {
-  // Esta función no tiene equivalente directo en la API Flask
-  console.warn('createAdmin: Esta función no tiene equivalente en la API Flask');
-  throw new Error('Función no disponible en la API Flask');
-};
 
 // --- ACTUALIZACIONES PERIÓDICAS (POLLING) ---
 // Las suscripciones en tiempo real no están disponibles con una API REST
