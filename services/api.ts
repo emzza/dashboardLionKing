@@ -122,10 +122,18 @@ export const updateCajero = async (id: number, updates: Partial<Cajero>) => {
 
 // --- ADMINISTRADORES ---
 export const fetchAllAdmins = async (): Promise<Administrador[]> => {
-  const response = await apiRequest<Administrador[]>('/admin/all', {
+  const response = await apiRequest<
+    Administrador[] | { administradores?: Administrador[] }
+  >('/admin/all', {
     method: 'GET',
   });
-  return response.success ? response.data || [] : [];
+
+  const admins =
+    (response as any).administradores ??
+    response.data ??
+    [];
+
+  return response.success ? admins : [];
 };
 
 export const updateAdmin = async (id: number, updates: Partial<Administrador>) => {
