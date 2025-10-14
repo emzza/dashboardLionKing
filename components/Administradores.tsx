@@ -34,6 +34,7 @@ const Administradores: React.FC<adminProps> = ({ admin, isOpen, setIsOpen }) => 
     setLoading(true);
     try {
       const data = await fetchAllAdmins();
+      console.log(data);
       setAdmins(data);
     } catch (error) {
        setNotification({ message: 'Error al cargar administradores.', type: NTEnum.ERROR });
