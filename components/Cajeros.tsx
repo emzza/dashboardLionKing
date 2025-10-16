@@ -66,7 +66,13 @@ function Cajeros({ admin, isOpen, setIsOpen }: CajerosProps) {
       .channel('cajeros-realtime')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'cajeros' }, (payload) => {
         if (payload.eventType === 'INSERT') {
-          setCajeros((prev) => [...prev, normalizeCajero(payload.new)]);
+          setCajeros((prev) => {
+            const nuevo = normalizeCajero(payload.new);
+            const exists = prev.some((c) => c.id === nuevo.id);
+            return exists
+              ? prev.map((c) => (c.id === nuevo.id ? { ...c, ...nuevo } : c))
+              : [...prev, nuevo];
+          });
         }
         if (payload.eventType === 'UPDATE') {
           setCajeros((prev) =>
@@ -129,8 +135,11 @@ function Cajeros({ admin, isOpen, setIsOpen }: CajerosProps) {
     // 📡 Llamada al backend Flask
     const cajeroCreado = await createCajero(newCajeroData);
 
-    // ✅ Agregar el nuevo cajero directamente a la tabla
-    setCajeros((prev) => [...prev, cajeroCreado]);
+    // Evitar duplicados: solo agregamos si no existe; si Realtime lo inserta, no se duplicará.
+    setCajeros((prev) => {
+      const exists = prev.some((c) => c.id === cajeroCreado.id);
+      return exists ? prev : [...prev, cajeroCreado];
+    });
 
     // ✅ Notificación de éxito
     setNotification({ 
