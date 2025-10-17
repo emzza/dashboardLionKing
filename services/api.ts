@@ -88,8 +88,9 @@ export const updateMacro = async (id: number, updates: Partial<Macro>) => {
 };
 
 // --- CAJEROS ---
-export const fetchCajerosForAdmin = async (adminId: number): Promise<Cajero[]> => {
-  const response = await apiRequest<{ cajeros: Cajero[] } | Cajero[]>(`/admin/${adminId}/cajeros`, {
+export const fetchCajerosForAdmin = async (adminId?: number): Promise<Cajero[]> => {
+  const endpoint = adminId != null ? `/admin/${adminId}/cajeros` : `/cajero/all`;
+  const response = await apiRequest<{ cajeros: Cajero[] } | Cajero[]>(endpoint, {
     method: 'GET',
   });
   const cajeros = (response as any).cajeros ?? response.data ?? [];
@@ -169,26 +170,25 @@ export const getCajeroIdByName = async (nombre: string): Promise<number | null> 
 // Tendrás que implementarlas en el backend o manejarlas de otra manera
 
 export const fetchAllCajeros = async (): Promise<Cajero[]> => {
-  
-  try {
-    const response = await fetch(`/api/cajero/all`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-   });
+  // Recupera todos los cajeros disponibles manteniendo la misma normalización
+  // que fetchCajerosForAdmin.
+  const response = await apiRequest<{ cajeros: Cajero[] } | Cajero[]>(`/cajero/all`, {
+    method: 'GET',
+  });
 
-    const data = await response.json();
-
-    if (!response.ok || !data.success) {
-      throw new Error(data.message || 'Error al crear admin');
-    }
-
-    return data.cajero; // el objeto que devuelve tu API Flask
-  } catch (error) {
-    console.error('Error en createAdmin:', error);
-    throw error;
-  }
+  const cajeros = (response as any).cajeros ?? response.data ?? [];
+  const normalized = Array.isArray(cajeros)
+    ? cajeros.map((c: any) => ({
+        ...c,
+        // SIEMPRE boolean
+        estadolinea:
+          typeof c.estadolinea === 'string'
+            ? c.estadolinea.toLowerCase() === 'open'
+            : !!c.estadolinea,
+        conteoDia: c.conteoDia ?? c.conteodia ?? 0,
+      }))
+    : [];
+  return response.success ? normalized : [];
 };
 
 export const createAdmin = async (newAdmin: Omit<Administrador, 'id'>) => {
