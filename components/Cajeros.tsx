@@ -2,7 +2,7 @@ import { createCajero } from '../services/api';
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Administrador, Cajero, Notification as NotificationType, NotificationType as NTEnum } from '../types';
 import {
-  fetchCajerosForAdmin,
+  fetchAllCajeros,
   updateCajero,
   startPolling,
   stopPolling,
@@ -41,7 +41,7 @@ function Cajeros({ admin, isOpen, setIsOpen }: CajerosProps) {
     // Only show the main loader on the very first load.
     if (!cajeros.length) setLoading(true);
     try {
-      const data = await fetchCajerosForAdmin(admin.id);
+      const data = await fetchAllCajeros();
       
       setCajeros(data);
     } catch (error) {

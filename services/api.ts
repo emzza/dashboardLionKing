@@ -169,12 +169,27 @@ export const getCajeroIdByName = async (nombre: string): Promise<number | null> 
 // Tendrás que implementarlas en el backend o manejarlas de otra manera
 
 export const fetchAllCajeros = async (): Promise<Cajero[]> => {
-  // Esta función no tiene equivalente directo en la API Flask
-  // Podrías necesitar implementar un endpoint adicional en Flask
-  console.warn('fetchAllCajeros: Esta función no tiene equivalente en la API Flask');
-  return [];
-};
+  
+  try {
+    const response = await fetch(`/api/cajero/all`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+   });
 
+    const data = await response.json();
+
+    if (!response.ok || !data.success) {
+      throw new Error(data.message || 'Error al crear admin');
+    }
+
+    return data.cajero; // el objeto que devuelve tu API Flask
+  } catch (error) {
+    console.error('Error en createAdmin:', error);
+    throw error;
+  }
+};
 
 export const createAdmin = async (newAdmin: Omit<Administrador, 'id'>) => {
  try {
